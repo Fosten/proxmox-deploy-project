@@ -1,0 +1,82 @@
+- name: 'set facts'
+  hosts: 'localhost'
+  vars_prompt:
+  - name: ansible_password
+    prompt: "Node Password"
+    private: yes
+  pre_tasks:
+  - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+    openssh_keypair:
+      path: /home/{{ ansible_user }}/.ssh/id_rsa
+  - name: Set up authorized keys for the local user
+    authorized_key:
+      user: "{{ ansible_user }}" 
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
+  gather_facts: True
+
+- name: 'prep proxmox hosts for automation'
+  hosts: 'PV_node1'
+  vars_prompt:
+  - name: ansible_password
+    prompt: "Node Password"
+    private: yes
+  - name: VM_template
+    prompt: "CN template"
+    default: debian-2022-template
+    private: no
+  - name: VM_name
+    prompt: "VM name"
+    private: no
+  - name: VM_IP
+    prompt: "VM IP"
+    private: no
+  - name: VM_Gateway
+    prompt: "VM Gateway"
+    private: no
+  - name: VM_Netmask_Slash
+    prompt: "VM Netmask Slash"
+    private: no
+    default: 24
+  - name: VM_DNS
+    prompt: "VM DNS (no comma)"
+    private: no
+    default: "8.8.8.8 8.8.4.4"
+  - name: VM_SearchDomain
+    prompt: "VM SearchDomain"
+    private: no
+  - name: VM_sockets
+    prompt: "VM socket/s"
+    private: no
+    default: 1
+  - name: VM_cores
+    prompt: "VM core/s"
+    private: no
+    default: 2
+  - name: VM_memory
+    prompt: "VM RAM Memory (MB)"
+    private: no
+    default: 4096
+  - name: VM_INCREASE_DISK
+    prompt: "Increase (2 GB) virtio0 disk by"
+    private: no
+    default: 14
+  - name: PV_node2
+    prompt: "Migrate Virtual Machine to"
+    private: no
+    default: none
+  
+  pre_tasks:
+  - name: "Set network facts"
+    set_fact:
+      my_network:
+        params:
+          netmask: "{{ VM_Netmask_Slash }}"
+          vmbr: 0
+          gateway: "{{ VM_Gateway }}"
+          dnsservers: "{{ VM_DNS }}"
+          searchdomain: "{{ VM_SearchDomain }}"
+
+  user: root 
+  gather_facts: false
+  roles:
+    - { role: proxmox_deploy, default_proxmox_node: "{{ api_node }}", VM_network: my_network, PV_password: "{{ ansible_password }}"}

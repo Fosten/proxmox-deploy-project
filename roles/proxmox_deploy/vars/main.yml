@@ -1,0 +1,7 @@
+my_network:
+    params:
+        netmask: VM_Network_Slash
+        vmbr: 0
+        gateway: VM_Gateway
+        dnsservers: "{{VM_DNS}}"
+        searchdomain: VM_SearchDomain

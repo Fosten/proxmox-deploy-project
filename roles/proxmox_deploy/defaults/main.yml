@@ -1,0 +1,6 @@
+---
+# defaults file for proxmox_deploy
+default_disk: virtio0
+default_interface: ens18 
+default_volume: /dev/vda
+default_partition: 2
