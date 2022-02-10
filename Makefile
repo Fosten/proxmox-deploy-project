@@ -18,4 +18,4 @@ YELLOW=`tput setaf 3`
 
 .PHONY: install
 install: ## Deploy a proxmox node
-	ansible-playbook ~/proxmox-deploy-project/proxmox_deploy.yml -i hosts -vvvv
+	ansible-playbook ~/proxmox-deploy-project/proxmox_deploy.yml -i hosts
