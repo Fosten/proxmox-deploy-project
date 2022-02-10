@@ -47,15 +47,7 @@
       tags: provission
 
     - name: stopping new Virtual Machine to change IPv4 configuration, it is necessary
-      proxmox_kvm:
-           # verify_ssl: false
-            api_user : "{{ api_user }}"
-            api_password: "{{ PV_password }}" 
-            api_host : "{{ default_proxmox_node }}"
-            name : "{{ VM_name }}"
-            node : "{{ default_proxmox_node }}"
-            state : stopped
-            timeout: 300
+      shell: A=$(qm list |grep "{{ VM_name }}" | awk '{print $1}'); qm stop $A
       when: '"{{ VM_network }}" != "my_network" or "{{ VM_INCREASE_DISK }}" != "0"'
       tags: provission
 
