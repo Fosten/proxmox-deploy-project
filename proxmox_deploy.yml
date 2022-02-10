@@ -7,10 +7,10 @@
   pre_tasks:
   - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
     openssh_keypair:
-      path: /home/{{ ansible_user }}/.ssh/id_rsa
+      path: /home/{{ ansible_user_id }}/.ssh/id_rsa
   - name: Set up authorized keys for the local user
     authorized_key:
-      user: "{{ ansible_user }}" 
+      user: "{{ ansible_user_id }}" 
       key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
   gather_facts: True
 
