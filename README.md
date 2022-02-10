@@ -72,7 +72,7 @@ sudo apt-get install python3 python3-pip sshpass git -y
 Change user, install ansible, and grab the repo
 
 ```shell
-su user
+su - user
 pip3 install ansible
 echo 'export PATH=/home/user/.local/bin:$PATH' >>~/.bash_profile
 source ~/.bash_profile
