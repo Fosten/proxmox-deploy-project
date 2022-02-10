@@ -20,12 +20,11 @@ pip3 install proxmoxer
 Adjust the VM IDs below to your preference.  You will need to ```su - root``` to set the environment for qm command.
 
 ```shell
-mkdir ~/vm.import && cd ~/vm.import
 wget https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2
 qm create 400 --name "debian-2022-template" --memory 4096 --net0 virtio,bridge=vmbr0 --cores 2
-qm importdisk 400 ~/vm.import/debian-11-generic-amd64.qcow2 local-lvm
-qm set 400 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-400-disk-0
-qm set 400 --boot c --bootdisk scsi0
+qm importdisk 400 ~/debian-11-generic-amd64.qcow2 local-lvm
+qm set 400 --scsihw virtio-scsi-pci --virtio0 local-lvm:vm-400-disk-0
+qm set 400 --boot c --bootdisk virtio0
 qm set 400 --ide2 local-lvm:cloudinit
 qm set 400 --agent 1
 qm template 400
@@ -39,7 +38,14 @@ Replace the IP addresses below to match your desired environment.
 qm clone 400 401 --name vm-ansible-host
 qm set 401 --sshkey ~/.ssh/id_rsa.pub
 qm set 401 --ipconfig0 ip=x.x.x.x/x,gw=x.x.x.x
-qm resize 401 scsi0 16G
+qm resize 401 virtio0 16G
+qm start 401
+```
+
+Due to [this bug](https://forum.proxmox.com/threads/kernel-panic-after-resizing-a-clone.93738/) Debian cloud-init images will get Kernel Panic upon first boot after using qm resize.  So the VM will need restarted:
+
+```shell
+qm stop 401
 qm start 401
 ```
 
@@ -70,7 +76,7 @@ su user
 pip3 install ansible
 echo 'export PATH=/home/user/.local/bin:$PATH' >>~/.bash_profile
 source ~/.bash_profile
-git clone git@github.com:Fosten/proxmox-deploy-project.git
+git clone https://github.com/Fosten/proxmox-deploy-project.git
 ```
 
 ## Deploy a new VM
