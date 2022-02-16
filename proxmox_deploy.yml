@@ -5,14 +5,22 @@
     prompt: "Node Password"
     private: yes
   pre_tasks:
-  - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
-    openssh_keypair:
-      path: /home/{{ ansible_user_id }}/.ssh/id_rsa
-  - name: Set up authorized keys for the local user
-    authorized_key:
-      user: "{{ ansible_user_id }}" 
-      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
-  gather_facts: True
+  - block:
+    - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+      openssh_keypair:
+        path: /home/{{ ansible_user_id }}/.ssh/id_rsa
+
+    - name: set_fact
+      set_fact:
+        devUser: "{{ ansible_user_id }}"
+
+    - name: Fetch the ida_rsa
+      shell: cat /home/{{ ansible_user_id }}/.ssh/id_rsa.pub
+      register: myidrsa
+
+    - name: set fact
+      set_fact:
+        playbook_idrsa2: "{{ myidrsa.stdout }}"
 
 - name: 'prep proxmox hosts for automation'
   hosts: 'PV_node1'
@@ -27,6 +35,13 @@
   - name: VM_name
     prompt: "VM name"
     private: no
+  - name: VM_password
+    prompt: "VM password"
+    private: no
+  - name: VM_SSHPort
+    prompt: "VM SSHPort"
+    private: no
+    default: 22
   - name: VM_IP
     prompt: "VM IP"
     private: no
@@ -37,10 +52,14 @@
     prompt: "VM Netmask Slash"
     private: no
     default: 24
-  - name: VM_DNS
-    prompt: "VM DNS (no comma)"
+  - name: VM_DNS1
+    prompt: "VM DNS1"
     private: no
-    default: "8.8.8.8 8.8.4.4"
+    default: "8.8.8.8"
+  - name: VM_DNS2
+    prompt: "VM DNS2"
+    private: no
+    default: "8.8.4.4"
   - name: VM_SearchDomain
     prompt: "VM SearchDomain"
     private: no
@@ -73,7 +92,7 @@
           netmask: "{{ VM_Netmask_Slash }}"
           vmbr: 0
           gateway: "{{ VM_Gateway }}"
-          dnsservers: "{{ VM_DNS }}"
+          dnsservers: "{{ VM_DNS1 }} {{ VM_DNS2 }}"
           searchdomain: "{{ VM_SearchDomain }}"
 
   user: root 
