@@ -1,0 +1,24 @@
+#cloud-config
+
+hostname: {{ VM_name }}
+manage_etc_hosts: true
+user: {{ myciuser }}
+users:
+  - default
+  - name: {{ myciuser }}
+    ssh_authorized_keys: {{ mysshkeys }}
+    password: {{ VM_password }}
+chpasswd:
+  expire: False
+package_upgrade: true
+package_reboot_if_required: true
+locale: en_US
+timezone: America/New_York
+runcmd:
+  - sed -i 's/[#]*Port 22/Port {{ VM_SSHPort }}/g' /etc/ssh/sshd_config
+  - sed -i 's/[#]*PermitRootLogin yes/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config
+  - sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+  - systemctl reload ssh
+packages:
+  - qemu-guest-agent
+  - docker.io
