@@ -1,0 +1,15 @@
+#cloud-config
+version: 1
+config:
+    - type: physical
+      name: ens18
+      subnets:
+      - type: static
+        address: '{{ VM_IP }}/{{ VM_Netmask_Slash }}'
+        gateway: '{{ VM_Gateway }}'
+    - type: nameserver
+      address:
+      - '{{ VM_DNS1 }}'
+      - '{{ VM_DNS2 }}'
+      search:
+      - '{{ VM_SearchDomain }}'
