@@ -37,6 +37,9 @@
     private: no
   - name: VM_password
     prompt: "VM password"
+    private: yes
+  - name: VM_ID
+    prompt: "VM ID"
     private: no
   - name: VM_SSHPort
     prompt: "VM SSHPort"
