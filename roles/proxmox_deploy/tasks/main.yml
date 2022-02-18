@@ -46,13 +46,20 @@
     - name: Waiting to start virtual server machine completely
       wait_for: 
         host: "{{ VM_name }}"
-        timeout: 30
+        timeout: 15
       when: wait.changed == true
       tags: provission
 
     - name: stopping new Virtual Machine to change IPv4 configuration, it is necessary
       shell: A=$(qm list |grep "{{ VM_name }}" | awk '{print $1}'); qm stop $A
       when: '"{{ VM_network }}" != "my_network" or "{{ VM_INCREASE_DISK }}" != "0"'
+      tags: provission
+
+    - name: Waiting to stop virtual server machine completely
+      wait_for: 
+        host: "{{ VM_name }}"
+        timeout: 15
+      when: wait.changed == true
       tags: provission
 
     - name: starting new Virtual Machine in current proxmox node
