@@ -15,10 +15,13 @@
         name : "{{ VM_name }}"
         node : "{{ default_proxmox_node }}"
         clone: "{{ VM_template }}"
+        newid: "{{ VM_ID }}"
         timeout: 300
-        cicustom: "user=local:snippets/userconfig.yaml,network=local:snippets/networkconfig.yaml"
-
       tags: provission
+
+    - name: Set the VM cloud-config
+      shell: A=$(qm list |grep "{{ VM_name }}" | awk '{print $1}'); qm set $A --cicustom "network=local:snippets/networkconfig.yaml,user=local:snippets/userconfig.yaml"
+
     - name: Increasing disk if it is necessary
       shell: A=$(qm list |grep "{{ VM_name }}" | awk '{print $1}'); qm resize $A {{ default_disk }} +{{ VM_INCREASE_DISK }}G
       when: '"{{ VM_INCREASE_DISK }}" != "0"'
@@ -30,7 +33,7 @@
         timeout: 5
       tags: provission
 
-    - name: starting new Virtual Machine to change IPv4 configuration, it is necessary
+    - name: starting new Virtual Machine
       proxmox_kvm:
         api_user : "{{ api_user }}"
         api_password: "{{ PV_password }}" 
@@ -50,7 +53,7 @@
       when: wait.changed == true
       tags: provission
 
-    - name: stopping new Virtual Machine to change IPv4 configuration, it is necessary
+    - name: stopping new Virtual Machine to change disk space, it is necessary
       shell: A=$(qm list |grep "{{ VM_name }}" | awk '{print $1}'); qm stop $A
       when: '"{{ VM_network }}" != "my_network" or "{{ VM_INCREASE_DISK }}" != "0"'
       tags: provission
