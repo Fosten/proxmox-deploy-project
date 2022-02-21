@@ -38,13 +38,13 @@ Replace the IP addresses below to match your desired environment.
 qm clone 400 401 --name vm-ansible-host
 qm set 401 --sshkey ~/.ssh/id_rsa.pub
 qm set 401 --ipconfig0 ip=x.x.x.x/x,gw=x.x.x.x
-qm resize 401 virtio0 16G
-qm start 401
 ```
 
-Due to [this bug](https://forum.proxmox.com/threads/kernel-panic-after-resizing-a-clone.93738/) Debian cloud-init images will get Kernel Panic upon first boot after using qm resize.  So the VM will need restarted:
+The 2GB disk Proxmox gives you by default is insufficient to run this script.  However, due to [this bug](https://forum.proxmox.com/threads/kernel-panic-after-resizing-a-clone.93738/) Debian cloud-init images will get Kernel Panic upon first boot after using qm resize.  So the VM will need to be started twice:
 
 ```shell
+qm resize 401 virtio0 16G
+qm start 401
 qm stop 401
 qm start 401
 ```
@@ -57,22 +57,18 @@ From the proxmox node, ```ssh debian@x.x.x.x``` and do some basic setup, such as
 
 ```shell
 sudo adduser user
-sudo sed -i 's/#\(PermitRootLogin*\).*/\1 yes/' /etc/ssh/sshd_config
-sudo sed -i 's/\(PasswordAuthentication*\).*/\1 yes/' /etc/ssh/sshd_config
+sudo usermod -aG sudo user
+su - user
+sudo sed -i 's/[#]*Port 22/Port 3333/g' /etc/ssh/sshd_config
+sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sudo service sshd restart
 sudo passwd root
 ```
 
-Then install some programs you'll need.
+Then install some programs you'll need, set the environment, and clone the repo.
 
 ```shell
-sudo apt-get install python3 python3-pip sshpass git -y
-```
-
-Change user, install ansible, and grab the repo
-
-```shell
-su - user
+sudo apt install python3 python3-pip sshpass git -y
 pip3 install ansible
 echo 'export PATH=/home/user/.local/bin:$PATH' >>~/.bash_profile
 source ~/.bash_profile
