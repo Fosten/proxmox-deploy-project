@@ -44,7 +44,7 @@
   - name: VM_SSHPort
     prompt: "VM SSHPort"
     private: no
-    default: 22
+    default: 3333
   - name: VM_IP
     prompt: "VM IP"
     private: no
@@ -77,11 +77,11 @@
   - name: VM_memory
     prompt: "VM RAM Memory (MB)"
     private: no
-    default: 4096
+    default: 8192
   - name: VM_INCREASE_DISK
     prompt: "Increase (2 GB) virtio0 disk by"
     private: no
-    default: 14
+    default: 30
   - name: PV_node2
     prompt: "Migrate Virtual Machine to"
     private: no
