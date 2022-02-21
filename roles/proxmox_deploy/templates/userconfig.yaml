@@ -22,4 +22,4 @@ package_reboot_if_required: true
 packages:
   - qemu-guest-agent
   - build-essential
-
+  - git
