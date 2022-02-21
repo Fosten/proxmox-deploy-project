@@ -1,6 +1,6 @@
 ## All
 node1 api_node= api_user= ansible_host= ansible_user= ansible_ssh_port= ansible_ssh_private_key_file= ssl_verify=false ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
-localhost ansible_host=127.0.0.1
+localhost ansible_host=127.0.0.1 ansible_ssh_port=3333
 
 [PV_node1]
 node1
